@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\WS.Games.Elo.Lib\WS.Games.Elo.Lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NDesk.Options" Version="0.2.1" />
+    <PackageReference Include="WS.Utilities.Console" Version="1.0.0" />
+    <PackageReference Include="WS.Utilities.Injection" Version="1.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>

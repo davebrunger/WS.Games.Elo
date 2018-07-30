@@ -328,3 +328,12 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# VSCode Files
+.vscode/
+
+# Data files
+Data/
+
+# Javascript Distribution files
+WS.Games.Elo.Web/wwwroot/dist/
