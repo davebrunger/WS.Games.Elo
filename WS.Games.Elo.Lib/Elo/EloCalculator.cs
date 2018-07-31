@@ -20,12 +20,12 @@ namespace WS.Games.Elo.Lib.Elo
 
         public int GetNewRating(int originalRating, double winProbability, Result result)
         {
-            return GetNewRating(originalRating, KFactor, winProbability, result);
+            return GetNewRating(originalRating, winProbability, result.ToScore());
         }
 
         private int PointsExchanged(double winProbability, Result result)
         {
-            return PointsExchanged(KFactor, winProbability, result);
+            return PointsExchanged(winProbability, result.ToScore());
         }
 
         public T UpdateRating<T>(IImmutableRatingHolder<T> ratingHolder, IRatingHolder opponent, Result result)
@@ -39,8 +39,6 @@ namespace WS.Games.Elo.Lib.Elo
         public IEnumerable<T> UpdateRatings<T>(IReadOnlyCollection<IReadOnlyCollection<IImmutableRatingHolder<T>>> ratingHoldersFinishingPosition)
             where T : IImmutableRatingHolder<T>
         {
-            var multiplayerKFactor = (double)KFactor / (ratingHoldersFinishingPosition.Sum(rhl => rhl.Count()) - 1);
-
             return ratingHoldersFinishingPosition.SelectMany((rhl, p) => rhl.Select(rh =>
             {
                 var originalRating = rh.Rating;
@@ -57,21 +55,23 @@ namespace WS.Games.Elo.Lib.Elo
                     .Skip(p + 1)
                     .SelectMany(ol => ol.Select(o => new {WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Win}));
                 
-                return winProbabilitiesAgainstWinners
+                var totalWinProbability = winProbabilitiesAgainstWinners
                     .Concat(winProbabilitiesAgainstTies)
                     .Concat(winProbabilitiesAgainstLosers)
-                    .Aggregate(rh.UpdateRating(originalRating), (rha, wp) => rha.UpdateRating(GetNewRating(rha.Rating, multiplayerKFactor, wp.WinProbability, wp.Result)));
+                    .Aggregate(new {WinProbability = 0.0, Result = 0.0}, (rha, wp) => new {WinProbability = rha.WinProbability + wp.WinProbability, Result = rha.Result + wp.Result.ToScore()});
+
+                return rh.UpdateRating(GetNewRating(originalRating, totalWinProbability.WinProbability, totalWinProbability.Result));
             }));
         }
 
-        private static int PointsExchanged(double kFactor, double winProbability, Result result)
+        private int PointsExchanged(double winProbability, double result)
         {
-            return (int)Math.Round(kFactor * (result.ToScore() - winProbability));
+            return (int)Math.Round(KFactor * (result - winProbability));
         }
 
-        private static int GetNewRating(int originalRating, double kFactor, double winProbability, Result result)
+        private int GetNewRating(int originalRating, double winProbability, double result)
         {
-            return originalRating + PointsExchanged(kFactor, winProbability, result);
+            return originalRating + PointsExchanged(winProbability, result);
         }
     }
 }

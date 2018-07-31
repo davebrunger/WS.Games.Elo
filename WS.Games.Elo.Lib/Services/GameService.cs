@@ -11,11 +11,13 @@ namespace WS.Games.Elo.Lib.Services
     {
         private readonly IRepositoryFactory repositoryFactory;
         private readonly EloCalculator eloCalculator;
+        private readonly IGameServiceConfiguration configuration;
 
-        public GameService(IRepositoryFactory repositoryFactory, EloCalculator eloCalculator)
+        public GameService(IRepositoryFactory repositoryFactory, EloCalculator eloCalculator, IGameServiceConfiguration configuration)
         {
             this.repositoryFactory = repositoryFactory;
             this.eloCalculator = eloCalculator;
+            this.configuration = configuration;
         }
 
         public void AddNewGame(string name, string gameType, int minimumPlayerCount, int maximumPlayerCount)
@@ -56,6 +58,37 @@ namespace WS.Games.Elo.Lib.Services
                     throw new ArgumentException($"A game with the name {name} already exists", nameof(name));
                 }
                 gameRepository.Put(newGame);
+            }
+        }
+
+        public void RecalculateRatings()
+        {
+            List<GameResult> gameResults;
+
+            using (var playerRepository = repositoryFactory.GetRepository<Player>())
+            using (var gameResultRepository = repositoryFactory.GetRepository<GameResult>())
+            {
+                var players = playerRepository.Get();
+                foreach (var player in players)
+                {
+                    player.Rating = configuration.NewPlayerRating;
+                    playerRepository.Put(player);
+                }
+
+                gameResults = gameResultRepository.Get()
+                    .OrderBy(r => r.StartTime)
+                    .ThenBy(r => r.Game)
+                    .ToList();
+
+                gameResultRepository.Clear();
+            }
+
+            foreach (var gameResult in gameResults)
+            {
+                var playerNamesByPosition = gameResult.PlayerResultsByPosition
+                    .Select(prs => prs.Select(pr => pr.PlayerName).ToList())
+                    .ToList();
+                RegisterCompletedGame(gameResult.Game, gameResult.StartTime, gameResult.Location, playerNamesByPosition);
             }
         }
 

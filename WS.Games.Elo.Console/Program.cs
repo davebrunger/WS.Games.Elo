@@ -55,9 +55,10 @@ namespace WS.Games.Elo.Console
 
             container.RegisterType<PlayerService>();
             container.RegisterInstance<IRepositoryFactory>(new JsonRepositoryFactory(baseDirectory));
-            container.RegisterType<IPlayerServiceConfiguration, PlayerServiceConfiguration>();
+            container.RegisterType<IPlayerServiceConfiguration, Configuration>();
             container.RegisterType<GameService>();
             container.RegisterInstance(new EloCalculator(32));
+            container.RegisterType<IGameServiceConfiguration, Configuration>();
 
             // Command Line Commands
             var commands = new List<ICommand>();
