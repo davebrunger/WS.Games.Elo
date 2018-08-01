@@ -23,11 +23,6 @@ namespace WS.Games.Elo.Lib.Elo
             return GetNewRating(originalRating, winProbability, result.ToScore());
         }
 
-        private int PointsExchanged(double winProbability, Result result)
-        {
-            return PointsExchanged(winProbability, result.ToScore());
-        }
-
         public T UpdateRating<T>(IImmutableRatingHolder<T> ratingHolder, IRatingHolder opponent, Result result)
             where T : IImmutableRatingHolder<T>
         {
@@ -39,29 +34,43 @@ namespace WS.Games.Elo.Lib.Elo
         public IEnumerable<T> UpdateRatings<T>(IReadOnlyCollection<IReadOnlyCollection<IImmutableRatingHolder<T>>> ratingHoldersFinishingPosition)
             where T : IImmutableRatingHolder<T>
         {
+            var players = ratingHoldersFinishingPosition.Sum(rhs => rhs.Count());
+            if (players < 2)
+            {
+                throw new ArgumentException($"There must be at least 2 players involved in a ratings swap. Number of players specified: {players}", nameof(ratingHoldersFinishingPosition));
+            }
+            var playerCountAdjustment = 1.0 / (players - 1);
+
             return ratingHoldersFinishingPosition.SelectMany((rhl, p) => rhl.Select(rh =>
             {
                 var originalRating = rh.Rating;
-                
+
                 var winProbabilitiesAgainstWinners = ratingHoldersFinishingPosition
                     .Take(p)
-                    .SelectMany(ol => ol.Select(o => new {WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Loss}));
+                    .SelectMany(ol => ol.Select(o => new { WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Loss }));
                 var winProbabilitiesAgainstTies = ratingHoldersFinishingPosition
                     .Skip(p)
                     .First()
                     .Where(o => !rh.IdentifiesWith(o))
-                    .Select(o => new {WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Draw});
+                    .Select(o => new { WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Draw });
                 var winProbabilitiesAgainstLosers = ratingHoldersFinishingPosition
                     .Skip(p + 1)
-                    .SelectMany(ol => ol.Select(o => new {WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Win}));
-                
+                    .SelectMany(ol => ol.Select(o => new { WinProbability = GetWinProbability(originalRating, o.Rating), Result = Result.Win }));
+
                 var totalWinProbability = winProbabilitiesAgainstWinners
                     .Concat(winProbabilitiesAgainstTies)
                     .Concat(winProbabilitiesAgainstLosers)
-                    .Aggregate(new {WinProbability = 0.0, Result = 0.0}, (rha, wp) => new {WinProbability = rha.WinProbability + wp.WinProbability, Result = rha.Result + wp.Result.ToScore()});
+                    .Aggregate(new { WinProbability = 0.0, Result = 0.0 }, (rha, wp) => new { WinProbability = rha.WinProbability + wp.WinProbability, Result = rha.Result + wp.Result.ToScore() });
 
-                return rh.UpdateRating(GetNewRating(originalRating, totalWinProbability.WinProbability, totalWinProbability.Result));
+                return rh.UpdateRating(GetNewRating(originalRating,
+                    totalWinProbability.WinProbability * playerCountAdjustment,
+                    totalWinProbability.Result * playerCountAdjustment));
             }));
+        }
+
+        private int PointsExchanged(double winProbability, Result result)
+        {
+            return PointsExchanged(winProbability, result.ToScore());
         }
 
         private int PointsExchanged(double winProbability, double result)
