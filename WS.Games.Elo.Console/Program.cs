@@ -59,6 +59,7 @@ namespace WS.Games.Elo.Console
             container.RegisterType<GameService>();
             container.RegisterInstance(new EloCalculator(32));
             container.RegisterType<IGameServiceConfiguration, Configuration>();
+            container.RegisterType<ImageService>();
 
             // Command Line Commands
             var commands = new List<ICommand>();

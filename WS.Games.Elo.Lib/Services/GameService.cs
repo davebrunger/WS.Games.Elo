@@ -20,6 +20,25 @@ namespace WS.Games.Elo.Lib.Services
             this.configuration = configuration;
         }
 
+        public IEnumerable<GameResult> GetRecentGames(int numberOfGames)
+        {
+            using (var gameResultRepository = repositoryFactory.GetRepository<GameResult>())
+            {
+                return gameResultRepository.Get()
+                    .OrderByDescending(gr => gr.StartTime)
+                    .ThenBy(gr => gr.Game)
+                    .Take(numberOfGames);
+            }
+        }
+
+        public object GetGame(string gameName)
+        {
+            using (var gameRepository = repositoryFactory.GetRepository<Game>())
+            {
+                return gameRepository.Get(new Game {Name = gameName});
+            }
+        }
+
         public void AddNewGame(string name, string gameType, int minimumPlayerCount, int maximumPlayerCount)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -60,7 +79,6 @@ namespace WS.Games.Elo.Lib.Services
                 gameRepository.Put(newGame);
             }
         }
-
         public void RecalculateRatings()
         {
             List<GameResult> gameResults;
@@ -169,6 +187,36 @@ namespace WS.Games.Elo.Lib.Services
                 {
                     playerRepository.Put(player);
                 }
+            }
+        }
+
+        public byte[] GetGameThumbnail(string gameName)
+        {
+            using (var gameRepository = repositoryFactory.GetRepository<Game>())
+            using (var gameThumbnailRepository = repositoryFactory.GetRepository<GameThumbnail>())
+            {
+                var game = gameRepository.Get(new Game { Name = gameName });
+                if (game == null)
+                {
+                    throw new ArgumentException($"Unrecognised game name: {gameName}", nameof(gameName));
+                }
+                return gameThumbnailRepository.Get(new GameThumbnail { GameName = gameName })?.GetThumbnailBytes();
+            }
+        }
+
+        public void SetGameThumbnail(string gameName, byte[] thumbnailBytes)
+        {
+            using (var gameRepository = repositoryFactory.GetRepository<Game>())
+            using (var gameThumbnailRepository = repositoryFactory.GetRepository<GameThumbnail>())
+            {
+                var game = gameRepository.Get(new Game { Name = gameName });
+                if (game == null)
+                {
+                    throw new ArgumentException($"Unrecognised game name: {gameName}", nameof(gameName));
+                }
+                var gameThumbnail = new GameThumbnail {GameName = gameName};
+                gameThumbnail.SetThumbnailBytes(thumbnailBytes);
+                gameThumbnailRepository.Put(gameThumbnail);
             }
         }
     }

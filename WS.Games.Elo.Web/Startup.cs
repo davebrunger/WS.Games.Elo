@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WS.Games.Elo.Lib.Elo;
 using WS.Games.Elo.Lib.Repositories;
 using WS.Games.Elo.Lib.Services;
 
@@ -30,7 +31,10 @@ namespace WS.Games.Elo.Web
 
             services.AddSingleton<PlayerService>();
             services.AddSingleton<IRepositoryFactory>(new JsonRepositoryFactory(baseDirectory));
-            services.AddSingleton<IPlayerServiceConfiguration, PlayerServiceConfiguration>();
+            services.AddSingleton<IPlayerServiceConfiguration, Configuration>();
+            services.AddSingleton<GameService>();
+            services.AddSingleton<EloCalculator>(new EloCalculator(32));
+            services.AddSingleton<IGameServiceConfiguration, Configuration>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

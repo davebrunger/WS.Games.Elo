@@ -5,6 +5,12 @@ import * as ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { BrowserRouter } from 'react-router-dom';
 import * as RoutesModule from './routes';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faTrophy, faCertificate } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faTrophy);
+library.add(faCertificate);
+
 let routes = RoutesModule.routes;
 
 function renderApp() {
