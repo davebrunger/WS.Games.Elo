@@ -2,6 +2,7 @@ import * as React from "react";
 import { IGameResult } from "./iGameResult";
 import { IPlayerResult } from "./iPlayerResult";
 import { PositionIcon } from "./positionIcon";
+import { RatingChangeIcon } from "./ratingChangeIcon";
 
 export interface IGameResultGridRowProps {
     gameResult: IGameResult;
@@ -41,7 +42,7 @@ export class GameResultGridRow extends React.Component<IGameResultGridRowProps, 
                         <td><PositionIcon position={p.position} /></td>
                         <td>{p.playerResult.playerName}</td>
                         <td>{p.playerResult.ratingAfter}</td>
-                        <td>{p.playerResult.ratingAfter - p.playerResult.ratingBefore}</td>
+                        <td><RatingChangeIcon ratingChange={p.playerResult.ratingAfter - p.playerResult.ratingBefore} /></td>
                     </tr>
                 );
             });

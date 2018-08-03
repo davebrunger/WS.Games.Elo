@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FontAwesomeIcon } from "../../../node_modules/@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export interface IPositionIconProps {
     position: number;

@@ -4,7 +4,7 @@ import { Link, NavLink } from 'react-router-dom';
 export class NavMenu extends React.Component<{}, {}> {
     public render() {
         return (
-            <div className='navbar navbar-inverse'>
+            <div className='navbar navbar-inverse navbar-static-top'>
                 <div className='container-fluid'>
                     <div className='navbar-header'>
                         <button type='button' className='navbar-toggle' data-toggle='collapse' data-target='.navbar-collapse'>
@@ -18,7 +18,7 @@ export class NavMenu extends React.Component<{}, {}> {
                     <div className='navbar-collapse collapse'>
                         <ul className='nav navbar-nav'>
                             <li>
-                                <NavLink to={'/'} exact activeClassName='active'>
+                                <NavLink to={'/'} activeClassName='active'>
                                     <span className='glyphicon glyphicon-home'></span> Dashboard
                             </NavLink>
                             </li>

@@ -6,10 +6,13 @@ import { AppContainer } from 'react-hot-loader';
 import { BrowserRouter } from 'react-router-dom';
 import * as RoutesModule from './routes';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTrophy, faCertificate } from '@fortawesome/free-solid-svg-icons'
+import { faTrophy, faCertificate, faArrowUp, faArrowDown, faMinus } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faTrophy);
 library.add(faCertificate);
+library.add(faArrowUp);
+library.add(faArrowDown);
+library.add(faMinus);
 
 let routes = RoutesModule.routes;
 

@@ -1,0 +1,23 @@
+.position-1 {
+    color:darkgoldenrod;
+}
+
+.position-2 {
+    color:silver;
+}
+
+.position-3 {
+    color:brown;
+}
+
+.rating-change-up {
+    color: darkgreen;
+}
+
+.rating-change-down {
+    color: darkred;
+}
+
+.rating-change-none {
+    color: darkslategrey;
+}
