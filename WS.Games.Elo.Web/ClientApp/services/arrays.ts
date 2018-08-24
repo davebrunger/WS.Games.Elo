@@ -1,6 +1,6 @@
 export class Arrays {
     public static orderBy<T, U>(source: T[], keySelector: (s: T) => U): T[] {
-        return source.splice(0, source.length).sort((a, b) => {
+        return source.slice(0, source.length).sort((a, b) => {
             var aKey = keySelector(a);
             var bKey = keySelector(b);
             if (aKey < bKey) {
@@ -14,7 +14,7 @@ export class Arrays {
     }
 
     public static orderByDescending<T, U>(source: T[], keySelector: (s: T) => U): T[] {
-        return source.splice(0, source.length).sort((a, b) => {
+        return source.slice(0, source.length).sort((a, b) => {
             var aKey = keySelector(a);
             var bKey = keySelector(b);
             if (aKey < bKey) {
