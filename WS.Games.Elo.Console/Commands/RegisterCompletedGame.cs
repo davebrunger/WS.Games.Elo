@@ -29,7 +29,7 @@ namespace WS.Games.Elo.Console.Commands
 
             var optionSet = new OptionSet {
                 {"n|name=", "The {NAME} of game played", n => name = n},
-                {"s|startTime=", "The {START_TIME} of the game", s => startTime = SafeParse(s)},
+                {"s|startTime=", "The {START_TIME} of the game in the format dd/MM/yyyy HH:mm", s => startTime = SafeParse(s)},
                 {"l|location=", "The {LOCATION} where the game was played", l => location = l}
             };
             var extraParameters = optionSet.Parse(options);
