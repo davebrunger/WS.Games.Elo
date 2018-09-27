@@ -13,7 +13,11 @@ export interface IDashboardState {
     gameresults?: IGameResult[];
 }
 
-export class Dashboard extends React.Component<RouteComponentProps<{}>, IDashboardState> {
+export interface IDashboardProps extends RouteComponentProps<{}>{
+    httpService : HttpService;
+}
+
+export class Dashboard extends React.Component<IDashboardProps, IDashboardState> {
 
     private readonly topPlayersMinimumNumberOfGames = 1;
     private readonly topPlayersMinimumNumberOfPlayers = 5;
@@ -25,8 +29,8 @@ export class Dashboard extends React.Component<RouteComponentProps<{}>, IDashboa
     }
 
     private getPlayers() {
-        HttpService.get<IPlayer[]>(`/api/players?minimumNumberOfGames=${this.topPlayersMinimumNumberOfGames}`, data => {
-            var topPlayers = Arrays.orderByDescending(data, d => d.rating).splice(0, this.topPlayersMinimumNumberOfPlayers);
+        this.props.httpService.get<IPlayer[]>(`/api/players?minimumNumberOfGames=${this.topPlayersMinimumNumberOfGames}`, data => {
+            var topPlayers = Arrays.orderByDescending(data, d => d.rating).slice(0, this.topPlayersMinimumNumberOfPlayers);
             if (topPlayers.length == this.topPlayersMinimumNumberOfPlayers) {
                 var lastPlayerRating = topPlayers[4].rating;
                 topPlayers = Arrays.orderByDescending(data.filter(p => p.rating >= lastPlayerRating), p => p.rating);
@@ -36,9 +40,9 @@ export class Dashboard extends React.Component<RouteComponentProps<{}>, IDashboa
     }
 
     private getRecentGames() {
-        HttpService.get<IGameResult[]>(`/api/games/recent/${this.maximumNumberOfRecentgames}`, data => {
+        this.props.httpService.get<IGameResult[]>(`/api/games/recent/${this.maximumNumberOfRecentgames}`, data => {
             this.setState({ gameresults: data });
-        })
+        });
     }
 
     public componentDidMount() {
@@ -56,7 +60,7 @@ export class Dashboard extends React.Component<RouteComponentProps<{}>, IDashboa
         var noRecentGamesMessage = "No recent games have been played";
         return (
             <div>
-                <h1>Welcome to the Dashboard</h1>
+                <h1>Dashboard</h1>
                 <div className="row">
                     <div className="col-sm-3">
                         <h4>{numberOfTopPlayersHeading}<br /><small>{numberOfTopPlayersSubheading}</small></h4>
@@ -64,7 +68,7 @@ export class Dashboard extends React.Component<RouteComponentProps<{}>, IDashboa
                     </div>
                     <div className="col-sm-9">
                         <h4>{recentGamesHeading}<br /><small>&nbsp;</small></h4>
-                        <GameResultGrid gameResults={this.state.gameresults} noGameResultsMessage={noTopPlayersMessage} />
+                        <GameResultGrid gameResults={this.state.gameresults} noGameResultsMessage={noRecentGamesMessage} />
                     </div>
                 </div>
             </div>

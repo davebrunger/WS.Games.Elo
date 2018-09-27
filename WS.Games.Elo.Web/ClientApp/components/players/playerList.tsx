@@ -8,7 +8,11 @@ export interface IPlayerListState {
     players?: IPlayer[];
 }
 
-export class PlayerList extends React.Component<RouteComponentProps<{}>, IPlayerListState> {
+export interface IPlayerListProps extends RouteComponentProps<{}> {
+    httpService : HttpService;
+}
+
+export class PlayerList extends React.Component<IPlayerListProps, IPlayerListState> {
 
     constructor(props: any) {
         super(props);
@@ -16,7 +20,7 @@ export class PlayerList extends React.Component<RouteComponentProps<{}>, IPlayer
     }
 
     private getPlayers() {
-        HttpService.get<IPlayer[]>("/api/players", data => {
+        this.props.httpService.get<IPlayer[]>("/api/players", data => {
             this.setState({ players: data });
         })
     }
@@ -28,7 +32,7 @@ export class PlayerList extends React.Component<RouteComponentProps<{}>, IPlayer
     public render() {
         return (
             <div>
-                <h1>Welcome to the List of All Players</h1>
+                <h1>All Players</h1>
                 <PlayerGrid players={this.state.players} noPlayersMessage={"No players have been registered"} />
             </div>
         );

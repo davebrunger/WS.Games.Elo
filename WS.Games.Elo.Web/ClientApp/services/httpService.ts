@@ -1,6 +1,12 @@
+import { SecurityService } from "./securityService";
+
 export class HttpService {
 
-    private static performHttpRequest<T>(
+    constructor(private readonly securityService: SecurityService) {
+
+    }
+
+    private performHttpRequest<T>(
         method: string,
         url: string,
         data?: { [key: string]: any },
@@ -8,7 +14,7 @@ export class HttpService {
         successCallback?: (data: T) => void,
         errorCallback?: (status: number, responseText: string) => void
     ) {
-        const formData = data || files ? new FormData() : null;
+        const formData = data || files ? new FormData() : undefined;
 
         if (data) {
             for (let key in data) {
@@ -30,34 +36,46 @@ export class HttpService {
 
         const xhr = new XMLHttpRequest();
         xhr.open(method, url, true);
+
+        var bearerToken = this.securityService.getBearerToken();
+
+        if (bearerToken) {
+            xhr.setRequestHeader("Authorization", `Bearer ${bearerToken}`);
+        }
+
         xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) {
                 if (successCallback) {
                     const responseData = xhr.responseText ? JSON.parse(xhr.responseText) : null;
                     successCallback(responseData);
                 }
-            } else if (errorCallback) {
-                errorCallback(xhr.status, xhr.responseText);
+            } else {
+                if (xhr.status == 401) {
+                    this.securityService.logout();
+                }
+                if (errorCallback) {
+                    errorCallback(xhr.status, xhr.responseText);
+                }
             }
         };
         xhr.send(formData);
     }
 
-    public static get<T>(
+    public get<T>(
         url: string,
         successCallback: (data: T) => void,
         errorCallback?: (status: number, responseText: string) => void
     ) {
-        HttpService.performHttpRequest("GET", url, undefined, undefined, successCallback, errorCallback);
+        this.performHttpRequest("GET", url, undefined, undefined, successCallback, errorCallback);
     }
 
-    public static post<T>(
+    public post<T>(
         url: string,
         data?: { [key: string]: any },
         files?: FileList,
         successCallback?: (data: T) => void,
         errorCallback?: (status: number, responseText: string) => void
     ) {
-        HttpService.performHttpRequest("POST", url, data, files, successCallback, errorCallback);
+        this.performHttpRequest("POST", url, data, files, successCallback, errorCallback);
     }
 }
